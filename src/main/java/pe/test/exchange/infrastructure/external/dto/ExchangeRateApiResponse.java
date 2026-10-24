@@ -8,6 +8,8 @@ import java.util.Map;
 
 public record ExchangeRateApiResponse(
         String result,
+        @JsonProperty("error-type")
+        String errorType,
         @JsonProperty("base_code")
         String baseCode,
         @JsonProperty("conversion_rates")

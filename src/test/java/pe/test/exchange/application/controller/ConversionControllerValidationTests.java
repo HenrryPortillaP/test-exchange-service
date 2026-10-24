@@ -72,6 +72,38 @@ class ConversionControllerValidationTests {
     }
 
     @Test
+    void acceptsEnyeAsALetterInCurrencyCode() throws Exception {
+        Conversion conversion = new Conversion(
+                "conversion-id",
+                new Moneda("ÑÑÑ"),
+                new Moneda("PEN"),
+                new BigDecimal("10"),
+                new BigDecimal("3.5"),
+                LocalDateTime.of(2026, 1, 1, 0, 0)
+        );
+        when(applicationService.convertir(
+                any(BigDecimal.class),
+                eq("ñññ"),
+                eq("PEN")
+        )).thenReturn(conversion);
+
+        mockMvc.perform(post("/api/v1/conversiones")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"monto":10,"monedaOrigen":"ñññ","monedaDestino":"PEN"}
+                                """))
+                .andExpect(status().isCreated())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.monedaOrigen").value("ÑÑÑ"));
+
+        verify(applicationService).convertir(
+                new BigDecimal("10"),
+                "ñññ",
+                "PEN"
+        );
+    }
+
+    @Test
     void rejectsEmptyBody() throws Exception {
         mockMvc.perform(post("/api/v1/conversiones")
                         .contentType(MediaType.APPLICATION_JSON))

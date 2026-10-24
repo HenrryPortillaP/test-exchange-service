@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 public record Moneda(String codigo) {
 
     private static final Pattern FORMATO_CODIGO =
-            Pattern.compile("[A-Z]{3}");
+            Pattern.compile("[A-ZÑ]{3}");
 
     public Moneda {
         Objects.requireNonNull(

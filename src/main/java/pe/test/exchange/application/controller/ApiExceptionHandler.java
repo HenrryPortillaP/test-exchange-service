@@ -10,9 +10,14 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @RestControllerAdvice
 public class ApiExceptionHandler {
+
+    private static final Pattern TIPO_ERROR_JSON =
+            Pattern.compile("\"error-type\"\\s*:\\s*\"([^\"]+)\"");
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Map<String, String>> manejarSolicitudInvalida(
@@ -54,6 +59,22 @@ public class ApiExceptionHandler {
     public ResponseEntity<Map<String, String>> manejarErrorProveedor(
             FeignException ex
     ) {
+        String tipoError = extraerTipoError(ex.contentUTF8());
+        if ("invalid-key".equalsIgnoreCase(tipoError)) {
+            return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
+                    .body(Map.of(
+                            "error",
+                            "La clave API del proveedor de tipos de cambio no es válida."
+                    ));
+        }
+        if ("unsupported-code".equalsIgnoreCase(tipoError)) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of(
+                            "error",
+                            "La moneda base enviada no es compatible con el proveedor."
+                    ));
+        }
+
         return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
                 .body(Map.of(
                         "error",
@@ -67,5 +88,10 @@ public class ApiExceptionHandler {
     ) {
         return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
                 .body(Map.of("error", ex.getMessage()));
+    }
+
+    private String extraerTipoError(String cuerpo) {
+        Matcher matcher = TIPO_ERROR_JSON.matcher(cuerpo);
+        return matcher.find() ? matcher.group(1) : null;
     }
 }

@@ -30,6 +30,7 @@ class ExchangeRateApiAdapterTest {
         when(apiClient.getLatestRates(API_KEY, "USD"))
                 .thenReturn(new ExchangeRateApiResponse(
                         "success",
+                        null,
                         "USD",
                         Map.of(
                                 "PEN", new BigDecimal("3.70"),
@@ -55,6 +56,7 @@ class ExchangeRateApiAdapterTest {
         when(apiClient.getLatestRates(API_KEY, "USD"))
                 .thenReturn(new ExchangeRateApiResponse(
                         "error",
+                        "unknown-error",
                         "USD",
                         Map.of("PEN", new BigDecimal("3.70"))
                 ));
@@ -65,9 +67,56 @@ class ExchangeRateApiAdapterTest {
     @Test
     void rejectsProviderResponseWithoutRates() {
         when(apiClient.getLatestRates(API_KEY, "USD"))
-                .thenReturn(new ExchangeRateApiResponse("success", "USD", null));
+                .thenReturn(new ExchangeRateApiResponse(
+                        "success",
+                        null,
+                        "USD",
+                        null
+                ));
 
         assertInvalidProviderResponse();
+    }
+
+    @Test
+    void reportsInvalidApiKeySpecifically() {
+        when(apiClient.getLatestRates(API_KEY, "USD"))
+                .thenReturn(new ExchangeRateApiResponse(
+                        "error",
+                        "invalid-key",
+                        null,
+                        null
+                ));
+
+        IllegalStateException exception = assertThrows(
+                IllegalStateException.class,
+                () -> adapter.obtenerTipoCambio("USD", "PEN")
+        );
+
+        assertEquals(
+                "La clave API del proveedor de tipos de cambio no es válida.",
+                exception.getMessage()
+        );
+    }
+
+    @Test
+    void reportsUnsupportedBaseCurrencySpecifically() {
+        when(apiClient.getLatestRates(API_KEY, "USA"))
+                .thenReturn(new ExchangeRateApiResponse(
+                        "error",
+                        "unsupported-code",
+                        null,
+                        null
+                ));
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> adapter.obtenerTipoCambio("USA", "PEN")
+        );
+
+        assertEquals(
+                "La moneda base no es compatible con el proveedor: USA",
+                exception.getMessage()
+        );
     }
 
     private void assertInvalidProviderResponse() {

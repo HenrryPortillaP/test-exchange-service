@@ -13,11 +13,11 @@ public record ConversionRequest(
         BigDecimal monto,
 
         @NotBlank(message = "La moneda de origen es obligatoria")
-        @Pattern(regexp = "[A-Za-z]{3}", message = "La moneda de origen debe tener exactamente tres letras")
+        @Pattern(regexp = "[A-Za-zÑñ]{3}", message = "La moneda de origen debe tener exactamente tres letras")
         String monedaOrigen,
 
         @NotBlank(message = "La moneda de destino es obligatoria")
-        @Pattern(regexp = "[A-Za-z]{3}", message = "La moneda de destino debe tener exactamente tres letras")
+        @Pattern(regexp = "[A-Za-zÑñ]{3}", message = "La moneda de destino debe tener exactamente tres letras")
         String monedaDestino
 ) {
 }
