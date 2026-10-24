@@ -175,6 +175,6 @@ Otras excepciones no tienen un handler general propio en `ApiExceptionHandler` y
 
 ## Arquitectura
 
-- **Dominio (`domain`):** modelos y reglas del negocio (`Moneda`, `Conversion`), cálculo del tipo de cambio, interfaz de repositorio y excepciones de dominio.
+- **Dominio (`domain`):** modelos y reglas del negocio (`Moneda`, `Conversion`), cálculo del tipo de cambio e interfaz de repositorio.
 - **Aplicación (`application`):** controladores REST, DTO de entrada/salida, validación HTTP, servicio de aplicación y mapeo de excepciones a respuestas HTTP.
 - **Infraestructura (`infrastructure`):** cliente OpenFeign y DTO del proveedor, entidad JPA, repositorio Spring Data, adaptador de persistencia y configuración de servicios de dominio.
