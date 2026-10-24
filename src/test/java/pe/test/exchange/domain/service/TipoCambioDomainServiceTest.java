@@ -1,7 +1,6 @@
 package pe.test.exchange.domain.service;
 
 import org.junit.jupiter.api.Test;
-import pe.test.exchange.domain.exception.MonedaNoSoportadaException;
 import pe.test.exchange.domain.model.Moneda;
 
 import java.math.BigDecimal;
@@ -47,7 +46,7 @@ class TipoCambioDomainServiceTest {
     @Test
     void rejectsMissingDestinationRate() {
         assertThrows(
-                MonedaNoSoportadaException.class,
+                IllegalArgumentException.class,
                 () -> service.calcularTipoCambio(
                         Map.of("USD", BigDecimal.ONE),
                         new Moneda("PEN")

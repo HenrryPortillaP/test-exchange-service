@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import pe.test.exchange.domain.exception.MonedaNoSoportadaException;
 
 import java.util.List;
 import java.util.Map;
@@ -67,14 +66,6 @@ public class ApiExceptionHandler {
             IllegalStateException ex
     ) {
         return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
-                .body(Map.of("error", ex.getMessage()));
-    }
-
-    @ExceptionHandler(MonedaNoSoportadaException.class)
-    public ResponseEntity<Map<String, String>> manejarMonedaNoSoportada(
-            MonedaNoSoportadaException ex) {
-
-        return ResponseEntity.badRequest()
                 .body(Map.of("error", ex.getMessage()));
     }
 }

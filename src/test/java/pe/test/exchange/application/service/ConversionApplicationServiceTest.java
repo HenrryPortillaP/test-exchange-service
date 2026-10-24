@@ -2,7 +2,6 @@ package pe.test.exchange.application.service;
 
 import org.junit.jupiter.api.Test;
 import pe.test.exchange.application.port.TipoCambioProvider;
-import pe.test.exchange.domain.exception.MonedaNoSoportadaException;
 import pe.test.exchange.domain.model.Conversion;
 import pe.test.exchange.domain.repository.ConversionRepository;
 
@@ -77,10 +76,12 @@ class ConversionApplicationServiceTest {
     @Test
     void rejectsUnavailableDestinationRate() {
         when(tipoCambioProvider.obtenerTipoCambio("USD", "PEN"))
-                .thenThrow(new MonedaNoSoportadaException("PEN"));
+                .thenThrow(new IllegalArgumentException(
+                        "Moneda no soportada: PEN"
+                ));
 
         assertThrows(
-                MonedaNoSoportadaException.class,
+                IllegalArgumentException.class,
                 () -> service.convertir(
                         new BigDecimal("10"),
                         "USD",
