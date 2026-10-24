@@ -33,6 +33,25 @@ class ExchangeServiceApplicationTests {
     }
 
     @Test
+    void rehydratedConversionUsesPersistedConvertedAmount() {
+        String id = UUID.randomUUID().toString();
+        BigDecimal persistedAmount = new BigDecimal("40.123456");
+        jpaRepository.save(new ConversionEntity(
+                id,
+                "USD",
+                "PEN",
+                new BigDecimal("10.000000"),
+                new BigDecimal("3.0000000000"),
+                persistedAmount,
+                LocalDateTime.now()
+        ));
+
+        Conversion rehydrated = conversionRepository.findById(id).orElseThrow();
+
+        assertEquals(persistedAmount, rehydrated.getMontoConvertido());
+    }
+
+    @Test
     void conversionKeepsRoundedAmountConsistentAfterSaveAndHistoryRead() {
         Conversion conversion = new Conversion(
                 UUID.randomUUID().toString(),
@@ -54,7 +73,7 @@ class ExchangeServiceApplicationTests {
 
         assertEquals(new BigDecimal("1.005000"), persisted.getMonto());
         assertEquals(new BigDecimal("1.0000000001"), persisted.getTipoCambio());
-        assertEquals(new BigDecimal("1.01"), persisted.getMontoConvertido());
+        assertEquals(new BigDecimal("1.005000"), persisted.getMontoConvertido());
         assertEquals(persisted.getMontoConvertido(), saved.getMontoConvertido());
         assertEquals(persisted.getMontoConvertido(), historical.getMontoConvertido());
         assertEquals(
@@ -80,7 +99,7 @@ class ExchangeServiceApplicationTests {
 
         assertEquals(new BigDecimal("1.234568"), conversion.getMonto());
         assertEquals(new BigDecimal("1.2345678902"), conversion.getTipoCambio());
-        assertEquals(new BigDecimal("1.52"), conversion.getMontoConvertido());
+        assertEquals(new BigDecimal("1.524158"), conversion.getMontoConvertido());
     }
 
     @Test

@@ -26,6 +26,26 @@ public class Conversion {
             BigDecimal tipoCambio,
             LocalDateTime fecha
     ) {
+        this(
+                id,
+                monedaOrigen,
+                monedaDestino,
+                monto,
+                tipoCambio,
+                calcularMontoConvertido(monto, tipoCambio),
+                fecha
+        );
+    }
+
+    public Conversion(
+            String id,
+            Moneda monedaOrigen,
+            Moneda monedaDestino,
+            BigDecimal monto,
+            BigDecimal tipoCambio,
+            BigDecimal montoConvertido,
+            LocalDateTime fecha
+    ) {
 
         if (monto == null) {
             throw new IllegalArgumentException("El monto es obligatorio");
@@ -41,6 +61,16 @@ public class Conversion {
 
         if (tipoCambio.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("El tipo de cambio debe ser mayor que cero");
+        }
+
+        if (montoConvertido == null) {
+            throw new IllegalArgumentException("El monto convertido es obligatorio");
+        }
+
+        if (montoConvertido.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException(
+                    "El monto convertido debe ser mayor que cero"
+            );
         }
 
         BigDecimal montoNormalizado = monto.setScale(6, RoundingMode.HALF_UP);
@@ -69,8 +99,20 @@ public class Conversion {
         );
         this.monto = montoNormalizado;
         this.tipoCambio = tipoCambioNormalizado;
-        this.montoConvertido = montoNormalizado.multiply(tipoCambioNormalizado)
-                .setScale(6, RoundingMode.HALF_UP);
+        this.montoConvertido = montoConvertido;
         this.fecha = Objects.requireNonNull(fecha, "La fecha es obligatoria");
+    }
+
+    private static BigDecimal calcularMontoConvertido(
+            BigDecimal monto,
+            BigDecimal tipoCambio
+    ) {
+        if (monto == null || tipoCambio == null) {
+            return null;
+        }
+
+        return monto.setScale(6, RoundingMode.HALF_UP)
+                .multiply(tipoCambio.setScale(10, RoundingMode.HALF_UP))
+                .setScale(6, RoundingMode.HALF_UP);
     }
 }

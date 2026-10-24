@@ -10,16 +10,17 @@ import org.springframework.test.web.servlet.MockMvc;
 import pe.test.exchange.application.service.ConversionApplicationService;
 import pe.test.exchange.domain.model.Conversion;
 import pe.test.exchange.domain.model.Moneda;
-import pe.test.exchange.domain.repository.ConversionRepository;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -34,9 +35,6 @@ class ConversionControllerValidationTests {
 
     @MockitoBean
     private ConversionApplicationService applicationService;
-
-    @MockitoBean
-    private ConversionRepository conversionRepository;
 
     @Test
     void rejectsMissingAmount() throws Exception {
@@ -145,7 +143,27 @@ class ConversionControllerValidationTests {
                 "USD",
                 "PEN"
         );
-        verifyNoInteractions(conversionRepository);
+    }
+
+    @Test
+    void listsConversionsThroughApplicationService() throws Exception {
+        Conversion conversion = new Conversion(
+                "conversion-id",
+                new Moneda("USD"),
+                new Moneda("PEN"),
+                new BigDecimal("10"),
+                new BigDecimal("3.5"),
+                LocalDateTime.of(2026, 1, 1, 0, 0)
+        );
+        when(applicationService.listarConversiones()).thenReturn(List.of(conversion));
+
+        mockMvc.perform(get("/api/v1/conversiones"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$[0].id").value("conversion-id"))
+                .andExpect(jsonPath("$[0].montoConvertido").value(35.0));
+
+        verify(applicationService).listarConversiones();
     }
 
     private void assertBadRequest(String requestBody) throws Exception {

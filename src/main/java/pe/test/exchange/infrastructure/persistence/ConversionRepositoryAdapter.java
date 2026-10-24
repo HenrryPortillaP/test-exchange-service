@@ -56,6 +56,7 @@ public class ConversionRepositoryAdapter
                 new Moneda(entity.getMonedaDestino()),
                 entity.getMonto(),
                 entity.getTipoCambio(),
+                entity.getMontoConvertido(),
                 entity.getFecha()
         );
     }

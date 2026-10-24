@@ -47,13 +47,13 @@ La propiedad `exchange-rate.api.key` se resuelve desde la variable de entorno `E
 **Windows PowerShell:**
 
 ```powershell
-$env:EXCHANGE_API_KEY = "3635bb7bf1393d87c4dd5155"
+$env:EXCHANGE_API_KEY = "TU_API_KEY"
 ```
 
 **Linux/macOS:**
 
 ```bash
-export EXCHANGE_API_KEY="3635bb7bf1393d87c4dd5155"
+export EXCHANGE_API_KEY="TU_API_KEY"
 ```
 
 La URL base configurada para ExchangeRate-API es `https://v6.exchangerate-api.com/v6`.
@@ -128,7 +128,7 @@ Ejemplo de respuesta:
   "monedaOrigen": "USD",
   "monedaDestino": "PEN",
   "tipoCambio": 3.7000000000,
-  "montoConvertido": 370.00,
+  "montoConvertido": 370.000000,
   "fecha": "2026-01-15T12:30:00"
 }
 ```

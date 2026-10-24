@@ -1,38 +1,29 @@
 package pe.test.exchange.application.service;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pe.test.exchange.application.port.TipoCambioProvider;
 import pe.test.exchange.domain.model.Conversion;
 import pe.test.exchange.domain.model.Moneda;
 import pe.test.exchange.domain.repository.ConversionRepository;
-import pe.test.exchange.domain.service.TipoCambioDomainService;
-import pe.test.exchange.infrastructure.external.ExchangeRateApiClient;
-import pe.test.exchange.infrastructure.external.dto.ExchangeRateApiResponse;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Service
 public class ConversionApplicationService {
 
-    private final ExchangeRateApiClient apiClient;
+    private final TipoCambioProvider tipoCambioProvider;
     private final ConversionRepository conversionRepository;
-    private final TipoCambioDomainService tipoCambioService;
-    private final String apiKey;
 
     public ConversionApplicationService(
-            ExchangeRateApiClient apiClient,
-            ConversionRepository conversionRepository,
-            TipoCambioDomainService tipoCambioService,
-            @Value("${exchange-rate.api.key}") String apiKey
+            TipoCambioProvider tipoCambioProvider,
+            ConversionRepository conversionRepository
     ) {
-        this.apiClient = apiClient;
+        this.tipoCambioProvider = tipoCambioProvider;
         this.conversionRepository = conversionRepository;
-        this.tipoCambioService = tipoCambioService;
-        this.apiKey = apiKey;
     }
 
     @Transactional
@@ -54,20 +45,9 @@ public class ConversionApplicationService {
         if (origen.equals(destino)) {
             tipoCambio = BigDecimal.ONE;
         } else {
-            ExchangeRateApiResponse respuesta =
-                    apiClient.getLatestRates(apiKey, origen.codigo());
-
-            if (respuesta == null
-                    || !"success".equalsIgnoreCase(respuesta.result())
-                    || respuesta.conversionRates() == null) {
-                throw new IllegalStateException(
-                        "No se pudieron obtener las tasas de cambio"
-                );
-            }
-
-            tipoCambio = tipoCambioService.calcularTipoCambio(
-                    respuesta.conversionRates(),
-                    destino
+            tipoCambio = tipoCambioProvider.obtenerTipoCambio(
+                    origen.codigo(),
+                    destino.codigo()
             );
         }
 
@@ -81,5 +61,10 @@ public class ConversionApplicationService {
         );
 
         return conversionRepository.save(conversion);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Conversion> listarConversiones() {
+        return conversionRepository.findAll();
     }
 }
