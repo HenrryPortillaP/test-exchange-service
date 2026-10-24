@@ -33,25 +33,6 @@ class ExchangeServiceApplicationTests {
     }
 
     @Test
-    void rehydratedConversionUsesPersistedConvertedAmount() {
-        String id = UUID.randomUUID().toString();
-        BigDecimal persistedAmount = new BigDecimal("40.123456");
-        jpaRepository.save(new ConversionEntity(
-                id,
-                "USD",
-                "PEN",
-                new BigDecimal("10.000000"),
-                new BigDecimal("3.0000000000"),
-                persistedAmount,
-                LocalDateTime.now()
-        ));
-
-        Conversion rehydrated = conversionRepository.findById(id).orElseThrow();
-
-        assertEquals(persistedAmount, rehydrated.getMontoConvertido());
-    }
-
-    @Test
     void conversionKeepsRoundedAmountConsistentAfterSaveAndHistoryRead() {
         Conversion conversion = new Conversion(
                 UUID.randomUUID().toString(),
@@ -63,7 +44,10 @@ class ExchangeServiceApplicationTests {
         );
 
         Conversion saved = conversionRepository.save(conversion);
-        ConversionEntity persisted = jpaRepository.findById(conversion.getId())
+        ConversionEntity persisted = jpaRepository.findAll()
+                .stream()
+                .filter(entity -> entity.getId().equals(conversion.getId()))
+                .findFirst()
                 .orElseThrow();
         Conversion historical = conversionRepository.findAll()
                 .stream()

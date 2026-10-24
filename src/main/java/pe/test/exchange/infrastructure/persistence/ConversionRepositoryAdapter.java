@@ -6,7 +6,6 @@ import pe.test.exchange.domain.model.Moneda;
 import pe.test.exchange.domain.repository.ConversionRepository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public class ConversionRepositoryAdapter
@@ -34,11 +33,6 @@ public class ConversionRepositoryAdapter
 
         ConversionEntity saved = jpaRepository.save(entity);
         return toDomain(saved);
-    }
-
-    @Override
-    public Optional<Conversion> findById(String id) {
-        return jpaRepository.findById(id).map(this::toDomain);
     }
 
     @Override
