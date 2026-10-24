@@ -70,7 +70,7 @@ public class Conversion {
         this.monto = montoNormalizado;
         this.tipoCambio = tipoCambioNormalizado;
         this.montoConvertido = montoNormalizado.multiply(tipoCambioNormalizado)
-                .setScale(2, RoundingMode.HALF_UP);
+                .setScale(6, RoundingMode.HALF_UP);
         this.fecha = Objects.requireNonNull(fecha, "La fecha es obligatoria");
     }
 }

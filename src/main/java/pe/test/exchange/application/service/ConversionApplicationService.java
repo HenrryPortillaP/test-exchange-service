@@ -50,22 +50,26 @@ public class ConversionApplicationService {
             );
         }
 
-        ExchangeRateApiResponse respuesta =
-                apiClient.getLatestRates(apiKey, "USD");
+        BigDecimal tipoCambio;
+        if (origen.equals(destino)) {
+            tipoCambio = BigDecimal.ONE;
+        } else {
+            ExchangeRateApiResponse respuesta =
+                    apiClient.getLatestRates(apiKey, origen.codigo());
 
-        if (respuesta == null
-                || !"success".equalsIgnoreCase(respuesta.result())
-                || respuesta.conversionRates() == null) {
-            throw new IllegalStateException(
-                    "No se pudieron obtener las tasas de cambio"
+            if (respuesta == null
+                    || !"success".equalsIgnoreCase(respuesta.result())
+                    || respuesta.conversionRates() == null) {
+                throw new IllegalStateException(
+                        "No se pudieron obtener las tasas de cambio"
+                );
+            }
+
+            tipoCambio = tipoCambioService.calcularTipoCambio(
+                    respuesta.conversionRates(),
+                    destino
             );
         }
-
-        BigDecimal tipoCambio = tipoCambioService.calcularTipoCambio(
-                respuesta.conversionRates(),
-                origen,
-                destino
-        );
 
         Conversion conversion = new Conversion(
                 UUID.randomUUID().toString(),

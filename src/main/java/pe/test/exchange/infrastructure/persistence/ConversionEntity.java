@@ -34,7 +34,7 @@ public class ConversionEntity {
     @Column(nullable = false, precision = 19, scale = 10)
     private BigDecimal tipoCambio;
 
-    @Column(nullable = false, precision = 19, scale = 2)
+    @Column(nullable = false, precision = 19, scale = 6)
     private BigDecimal montoConvertido;
 
     @Column(nullable = false)
